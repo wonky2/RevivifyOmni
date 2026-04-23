@@ -18,5 +18,5 @@ If you'd like to contribute, please keep in mind that:
 * `Rain Meadow.dll`
 
 Rain Meadow.dll can be found in one of these directories:
-* `steamapps\workshop\content\312520\3388224007\plugins\ (if installed through Steam Workshop)`
-* `Rain World\RainWorld_Data\StreamingAssets\mods\rainmeadow\plugins\ (if installed manually)`
+* `steamapps\workshop\content\312520\3388224007\plugins\` (if installed through Steam Workshop)
+* `Rain World\RainWorld_Data\StreamingAssets\mods\rainmeadow\plugins\` (if installed manually)
