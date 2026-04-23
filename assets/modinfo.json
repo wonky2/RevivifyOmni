@@ -1,0 +1,9 @@
+{
+  "id": "Wonky.RevivifyOmni",
+  "name": "Revivify Omni",
+  "version": "1.0.0",
+  "authors": "Wonky (original by Dual)",
+  "description": "Revivify made out of necessity",
+  "priorities": [ "henpemaz_rainmeadow" ],
+  "checksum_override_version": false
+}
