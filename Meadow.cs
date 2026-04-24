@@ -26,13 +26,21 @@ namespace Meadow
         [SoftRPCMethod]
         public static void ReviveRPC(RPCEvent rpc, OnlinePhysicalObject onlinePlayer)
         {
-            if (RevivifyOmni.Options.Mode.Value == "N" || (RevivifyOmni.Options.DisableInArena.Value && IsOnlineArenaSession()))
+            bool debug = RevivifyOmni.Options.DebugMode.Value;
+
+            if (RevivifyOmni.Options.DisableRPC.Value)
             {
-                Log($"{rpc.from} tried to ReviveRPC you, but you've disabled reviving");
+                if (debug) Log($"{rpc.from} tried to ReviveRPC you, but you've disabled RPC");
                 return;
             }
 
-            Log($"You've been ReviveRPC'd by {rpc.from}");
+            if (RevivifyOmni.Options.Mode.Value == "N" || (RevivifyOmni.Options.DisableInArena.Value && IsOnlineArenaSession()))
+            {
+                if (debug) Log($"{rpc.from} tried to ReviveRPC you, but you've disabled reviving");
+                return;
+            }
+
+            if (debug) Log($"You've been ReviveRPC'd by {rpc.from}");
         
             Player player = (onlinePlayer.apo.realizedObject as Player);
         

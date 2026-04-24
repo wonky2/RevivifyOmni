@@ -22,6 +22,10 @@ sealed class Options : OptionInterface
     public static Configurable<float> ProximityDistance;
     public static Configurable<int> ProximityTime;
 
+    // extras
+    public static Configurable<bool> DisableRPC;
+    public static Configurable<bool> DebugMode;
+
     public Options()
     {
         // common
@@ -38,9 +42,14 @@ sealed class Options : OptionInterface
         // proximity
         ProximityDistance = config.Bind("cfgProximityDistance", 60f, new ConfigAcceptableRange<float>(20f, 120f));
         ProximityTime = config.Bind("cfgProximityTime", 5, new ConfigAcceptableRange<int>(1, 10));
+
+        // extras
+        DisableRPC = config.Bind("cfgDisableRPC", false);
+        DebugMode = config.Bind("cfgDebugMode", false);
     }
 
     private UIelement[] UIOptions;
+    private UIelement[] UIExtras;
 
     private readonly List<ListItem> ModeList = new()
     {
@@ -72,10 +81,12 @@ sealed class Options : OptionInterface
     public override void Initialize()
     {
         var opCommon = new OpTab(this, "Settings");
+        var opExtras = new OpTab(this, "Extras");
 
         Tabs = new[]
         {
-            opCommon
+            opCommon,
+            opExtras
         };
 
         float sliderX = 270;
@@ -127,8 +138,20 @@ sealed class Options : OptionInterface
             new OpLabel(new(220, y -= 30), Vector2.zero, "Time until revived", FLabelAlignment.Right),
             new OpSlider(ProximityTime, new Vector2(sliderX, y - 6), 300),
         };
-
         opCommon.AddItems(UIOptions);
+
+        sliderX = 270;
+        y = 570;
+
+        UIExtras = new UIelement[]
+        {
+            new OpLabel(new(220, y), Vector2.zero, "Client-side reviving only", FLabelAlignment.Right),
+            new OpCheckBox(DisableRPC, new Vector2(sliderX, y - 6)),
+
+            new OpLabel(new(220, y -= 30), Vector2.zero, "Debug Mode", FLabelAlignment.Right),
+            new OpCheckBox(DebugMode, new Vector2(sliderX, y - 6)),
+        };
+        opExtras.AddItems(UIExtras);
     }
 
     readonly Color active = new(0.663f, 0.643f, 0.698f);
