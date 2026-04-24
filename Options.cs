@@ -25,6 +25,7 @@ sealed class Options : OptionInterface
     // extras
     public static Configurable<bool> DisableRPC;
     public static Configurable<bool> DebugMode;
+    public static Configurable<bool> ShowSettingsInPauseMenu;
 
     public Options()
     {
@@ -46,6 +47,7 @@ sealed class Options : OptionInterface
         // extras
         DisableRPC = config.Bind("cfgDisableRPC", false);
         DebugMode = config.Bind("cfgDebugMode", false);
+        ShowSettingsInPauseMenu = config.Bind("cfgShowSettingsInPauseMenu", true);
     }
 
     private UIelement[] UIOptions;
@@ -150,6 +152,9 @@ sealed class Options : OptionInterface
 
             new OpLabel(new(220, y -= 30), Vector2.zero, "Debug Mode", FLabelAlignment.Right),
             new OpCheckBox(DebugMode, new Vector2(sliderX, y - 6)),
+
+            new OpLabel(new(220, y -= 30), Vector2.zero, "Show Revivify settings in pause menu", FLabelAlignment.Right),
+            new OpCheckBox(ShowSettingsInPauseMenu, new Vector2(sliderX, y - 6)),
         };
         opExtras.AddItems(UIExtras);
     }

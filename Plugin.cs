@@ -964,6 +964,9 @@ sealed class Plugin : BaseUnityPlugin
     {
         orig(self, manager, game);
 
+        if (!Options.ShowSettingsInPauseMenu.Value)
+            return;
+
         Vector2 size = Vector2.zero;
         Vector2 pos = new(((1366f - manager.rainWorld.screenSize.x) / 2f) + 10f, game.rainWorld.screenSize.y);
 
