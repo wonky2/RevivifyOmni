@@ -46,75 +46,75 @@ sealed class Plugin : BaseUnityPlugin
         && ((meadowEnabled && Meadow.Meadow.IsOnlineArenaSession())
         || self.room.game.IsArenaSession));
 
-    static float canReviveDebugTime = 0.0f;
-    static float canReviveDebugInterval = 0.5f;
+    static float debugTime = 0.0f;
+    const float DEBUG_INTERVAL = 0.5f;
     private static bool CanRevive(Player medic, Player patient)
     {
         if (Options.DebugMode.Value)
         {
-            if (Options.Mode.Value == "P" && Time.time > canReviveDebugTime)
+            if (Options.Mode.Value == "P" && Time.time > debugTime)
             {
                 Log($"Distance between medic({medic}) and patient({patient}): {Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos)}");
-                canReviveDebugTime = Time.time + canReviveDebugInterval;
+                debugTime = Time.time + DEBUG_INTERVAL;
             }
             if (medic == patient)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}) == patient({patient})");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}) == patient({patient})");
                 return false;
             }
             if (IsRevivingDisabled(medic))
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: IsRevivingDisabled(medic({medic}))");
+                if (Time.time > debugTime) Log($"Can't revive: IsRevivingDisabled(medic({medic}))");
                 return false;
             }
             if (patient.playerState.permaDead)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: patient({patient}).playerState.permaDead");
+                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).playerState.permaDead");
                 return false;
             }
             if (!patient.dead)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: !patient({patient}).dead");
+                if (Time.time > debugTime) Log($"Can't revive: !patient({patient}).dead");
                 return false;
             }
             if (patient.grabbedBy.Count > 1)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: patient({patient}).grabbedBy.Count > 1");
+                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).grabbedBy.Count > 1");
                 return false;
             }
             if (patient.Submersion > 0)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: patient({patient}).Submersion > 0");
+                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).Submersion > 0");
                 return false;
             }
             if (patient.onBack != null)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: patient({patient}).onBack != null");
+                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).onBack != null");
                 return false;
             }
             if (Data(patient).Expired)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: Data(patient({patient})).Expired");
+                if (Time.time > debugTime) Log($"Can't revive: Data(patient({patient})).Expired");
                 return false;
             }
             if (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: Data(patient({patient})).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value");
+                if (Time.time > debugTime) Log($"Can't revive: Data(patient({patient})).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value");
                 return false;
             }
             if (!medic.Consious)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: !medic({medic}).Consious");
+                if (Time.time > debugTime) Log($"Can't revive: !medic({medic}).Consious");
                 return false;
             }
             if (medic.grabbedBy.Count > 0)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}).grabbedBy.Count > 0");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).grabbedBy.Count > 0");
                 return false;
             }
             if (medic.Submersion > 0)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}).Submersion > 0");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).Submersion > 0");
                 return false;
             }
         }
@@ -139,20 +139,20 @@ sealed class Plugin : BaseUnityPlugin
         {
             if (medic.exhausted)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}).exhausted");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).exhausted");
                 return false;
             }
             if (medic.lungsExhausted)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}).lungsExhausted");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).lungsExhausted");
                 return false;
             }
             if (medic.gourmandExhausted)
             {
-                if (Time.time > canReviveDebugTime) Log($"Can't revive: medic({medic}).gourmandExhausted");
+                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).gourmandExhausted");
                 return false;
             }
-            canReviveDebugTime = Time.time + canReviveDebugInterval;
+            debugTime = Time.time + DEBUG_INTERVAL;
         }
         else if (medic.exhausted
             || medic.lungsExhausted
@@ -981,6 +981,8 @@ sealed class Plugin : BaseUnityPlugin
             "N" => "Disabled",
             _ => "Error"
         };
+
+        if (Options.DisableRPC.Value) modeText += " (client-side only)";
 
         if (Options.Mode.Value == "N")
         {
