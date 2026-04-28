@@ -1,9 +1,9 @@
 ## Contributing
 If you'd like to contribute, please keep in mind that:
 1. This mod is meant to work in Rain Meadow lobbies even if not everyone has it installed
-2. Any potential new features need to be directly related to slugcats reviving or being revived
-3. Features that could potentially cause issues in Rain Meadow lobbies can still be added for non-Meadow sessions only (wrap relevant code around an if statement like so: `if (!meadowEnabled || (meadowEnabled && !Meadow.Meadow.IsOnlineSession())`)
-4. Due the above points, you should have at least a basic grasp of how Rain Meadow works and what may or may not be an issue in Rain Meadow lobbies
+2. Due the above point, you should have at least a basic grasp of how Rain Meadow works and what may or may not be an issue in Rain Meadow lobbies
+3. Any potential new features need to be directly related to slugcats reviving slugcats
+4. Features that could potentially cause issues in Rain Meadow lobbies or go beyond the scope of slugcats reviving slugcats will most likely be better off being separate mods so as to not bloat Revivify Omni unnecessarily
 
 ## Required assembly references
 * `Rain World\BepInEx\PUBLIC-Assembly-CSharp.dll`
