@@ -21,7 +21,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.1.0";
+    public const string MOD_VERSION = "1.2.0";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
