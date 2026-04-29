@@ -1,6 +1,7 @@
 ﻿using RainMeadow;
 using UnityEngine;
 
+#pragma warning disable IDE0130 // annoying >:(
 namespace Meadow
 {
     internal static class Meadow
@@ -50,9 +51,12 @@ namespace Meadow
             player.airInLungs = 0.1f;
             player.exhausted = true;
             player.aerobicLevel = 1;
-            if (ModManager.Watcher) player.injectedPoison = 0f;
-        
-            player.playerState.permanentDamageTracking = Mathf.Clamp01((float)RevivifyOmni.Plugin.Data(player).deaths / RevivifyOmni.Options.DeathsUntilExhaustion.Value) * 0.6;
+            if (ModManager.Watcher)
+                player.injectedPoison = 0f;
+
+            if (!RevivifyOmni.Options.DisableExhaustion.Value)
+                player.playerState.permanentDamageTracking = Mathf.Clamp01((float)RevivifyOmni.Plugin.Data(player).deaths / RevivifyOmni.Options.DeathsUntilExhaustion.Value) * 0.6;
+
             player.playerState.alive = true;
             player.playerState.permaDead = false;
             player.dead = false;

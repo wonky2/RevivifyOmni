@@ -175,9 +175,12 @@ sealed class Plugin : BaseUnityPlugin
         player.airInLungs = 0.1f;
         player.exhausted = true;
         player.aerobicLevel = 1;
-        if (ModManager.Watcher) player.injectedPoison = 0f;
+        if (ModManager.Watcher)
+            player.injectedPoison = 0f;
 
-        player.playerState.permanentDamageTracking = Mathf.Clamp01((float)Data(player).deaths / Options.DeathsUntilExhaustion.Value) * 0.6;
+        if (!Options.DisableExhaustion.Value)
+            player.playerState.permanentDamageTracking = Mathf.Clamp01((float)Data(player).deaths / Options.DeathsUntilExhaustion.Value) * 0.6;
+
         player.playerState.alive = true;
         player.playerState.permaDead = false;
         player.dead = false;
@@ -847,7 +850,7 @@ sealed class Plugin : BaseUnityPlugin
 
         PlayerData data = Data(self.player);
 
-        float visualDecay = Mathf.Max(Mathf.Clamp01(data.deathTime), Mathf.Clamp01((float)data.deaths / Options.DeathsUntilExhaustion.Value) * 0.6f);
+        float visualDecay = Options.DisableExhaustion.Value ? 0f : Mathf.Max(Mathf.Clamp01(data.deathTime), Mathf.Clamp01((float)data.deaths / Options.DeathsUntilExhaustion.Value) * 0.6f);
         if (self.malnourished < visualDecay)
         {
             self.malnourished = visualDecay;
