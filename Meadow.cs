@@ -1,4 +1,5 @@
 ﻿using RainMeadow;
+using System.Linq;
 using UnityEngine;
 
 #pragma warning disable IDE0130 // annoying >:(
@@ -16,7 +17,7 @@ namespace Meadow
 
         public static bool IsOnlineSession() => OnlineManager.lobby != null;
         public static bool IsOnlineArenaSession() => OnlineManager.lobby?.gameMode is ArenaOnlineGameMode;
-        public static bool IsLocal(Player player) => player.IsLocal();
+        public static bool IsRemote(Player player) => player.room.game.Players.All(p => p.realizedCreature != player);
         
         public static void InvokeReviveRPC(Player player)
         {
