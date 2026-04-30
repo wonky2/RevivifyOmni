@@ -18,6 +18,7 @@ In other Revivify's, the only way to avoid getting weakened or permanently dead 
 
 ### True Rain Meadow support
 Rather than handling everything client-side and hoping for the best, this mod actually communicates with online players to make reviving even more reliable! Of course, this only works between people who have Revivify Omni. For those who don't, things will still be handled client-side.
+If you don't want this functionality for any reason, you can disable it in the Extras tab in remix settings.
 
 ### Settings displayed in pause menu
 Just in case you don't remember your settings ;)
@@ -28,3 +29,6 @@ Whose original [Revivify](https://github.com/Dual-Iron/revivify) constitutes 99%
 
 ### To UO
 For helping me figure out the proper way to sync reviving in Rain Meadow!
+
+### To Auxiar Molkhun
+Just for also making a nice fresh Revivify while I was still working on mine! You should give it a try and see which one works best for you: [Revivify - Meadow Support](https://github.com/Auxiar/RevivifyMeadowSupport)
