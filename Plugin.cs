@@ -21,7 +21,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.0";
+    public const string MOD_VERSION = "1.2.1";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -50,75 +50,75 @@ sealed class Plugin : BaseUnityPlugin
     const float DEBUG_INTERVAL = 0.5f;
     private static bool CanRevive(Player medic, Player patient)
     {
-        if (Options.DebugMode.Value)
+        if (Options.DebugMode.Value && Time.time > debugTime)
         {
-            if (Options.Mode.Value == "P" && Time.time > debugTime)
-            {
-                Log($"Distance between medic({medic}) and patient({patient}): {Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos)}");
-                debugTime = Time.time + DEBUG_INTERVAL;
-            }
+            //if (Options.Mode.Value == "P" && Time.time > debugTime) Log($"Distance between medic({medic}) and patient({patient}): {Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos)}");
             if (medic == patient)
             {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}) == patient({patient})");
-                return false;
+                Log($"Can't revive: medic({medic}) == patient({patient})");
             }
             if (IsRevivingDisabled(medic))
             {
-                if (Time.time > debugTime) Log($"Can't revive: IsRevivingDisabled(medic({medic}))");
-                return false;
+                Log($"Can't revive: IsRevivingDisabled(medic({medic}))");
             }
             if (patient.playerState.permaDead)
             {
-                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).playerState.permaDead");
-                return false;
+                Log($"Can't revive: patient({patient}).playerState.permaDead");
             }
             if (!patient.dead)
             {
-                if (Time.time > debugTime) Log($"Can't revive: !patient({patient}).dead");
-                return false;
+                Log($"Can't revive: !patient({patient}).dead");
             }
             if (patient.grabbedBy.Count > 1)
             {
-                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).grabbedBy.Count > 1");
-                return false;
+                Log($"Can't revive: patient({patient}).grabbedBy.Count > 1");
             }
             if (patient.Submersion > 0)
             {
-                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).Submersion > 0");
-                return false;
+                Log($"Can't revive: patient({patient}).Submersion > 0");
             }
             if (patient.onBack != null)
             {
-                if (Time.time > debugTime) Log($"Can't revive: patient({patient}).onBack != null");
-                return false;
+                Log($"Can't revive: patient({patient}).onBack != null");
             }
             if (Data(patient).Expired)
             {
-                if (Time.time > debugTime) Log($"Can't revive: Data(patient({patient})).Expired");
-                return false;
+                Log($"Can't revive: Data(patient({patient})).Expired");
             }
             if (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
             {
-                if (Time.time > debugTime) Log($"Can't revive: Data(patient({patient})).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value");
-                return false;
+                Log($"Can't revive: Data(patient({patient})).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value");
             }
             if (!medic.Consious)
             {
-                if (Time.time > debugTime) Log($"Can't revive: !medic({medic}).Consious");
-                return false;
+                Log($"Can't revive: !medic({medic}).Consious");
             }
             if (medic.grabbedBy.Count > 0)
             {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).grabbedBy.Count > 0");
-                return false;
+                Log($"Can't revive: medic({medic}).grabbedBy.Count > 0");
             }
             if (medic.Submersion > 0)
             {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).Submersion > 0");
-                return false;
+                Log($"Can't revive: medic({medic}).Submersion > 0");
             }
+            // non-proximity
+            if (medic.exhausted && Options.Mode.Value != "P")
+            {
+                Log($"Can't revive: medic({medic}).exhausted");
+            }
+            if (medic.lungsExhausted && Options.Mode.Value != "P")
+            {
+                Log($"Can't revive: medic({medic}).lungsExhausted");
+            }
+            if (medic.gourmandExhausted && Options.Mode.Value != "P")
+            {
+                Log($"Can't revive: medic({medic}).gourmandExhausted");
+            }
+            // cooldown
+            debugTime = Time.time + DEBUG_INTERVAL;
         }
-        else if (medic == patient
+
+        if (medic == patient
             || IsRevivingDisabled(medic)
             || patient.playerState.permaDead
             || !patient.dead
@@ -135,26 +135,7 @@ sealed class Plugin : BaseUnityPlugin
         if (Options.Mode.Value == "P")
             return !medic.dead && Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos) <= Options.ProximityDistance.Value;
 
-        if (Options.DebugMode.Value)
-        {
-            if (medic.exhausted)
-            {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).exhausted");
-                return false;
-            }
-            if (medic.lungsExhausted)
-            {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).lungsExhausted");
-                return false;
-            }
-            if (medic.gourmandExhausted)
-            {
-                if (Time.time > debugTime) Log($"Can't revive: medic({medic}).gourmandExhausted");
-                return false;
-            }
-            debugTime = Time.time + DEBUG_INTERVAL;
-        }
-        else if (medic.exhausted
+        if (medic.exhausted
             || medic.lungsExhausted
             || medic.gourmandExhausted)
             return false;
@@ -517,15 +498,12 @@ sealed class Plugin : BaseUnityPlugin
         else if (Options.Mode.Value == "P")
         {
             // meadow/online
-            // if the other person doesn't have Omni, they'll just have to handle reviving by themself
+            // will attempt to ReviveRPC the patient, but if they don't have Omni, they'll have to deal with it client-side
             if (meadowEnabled && Meadow.Meadow.IsOnlineSession() && !self.dead && !Options.DisableRPC.Value)
             {
-                if (self.dead)
-                    return;
-
                 foreach (var abstractWorldEntity in self.room?.abstractRoom.entities)
                 {
-                    if (abstractWorldEntity is AbstractCreature { realizedCreature: Player patient } && !Meadow.Meadow.IsLocal(patient))
+                    if (abstractWorldEntity is AbstractCreature { realizedCreature: Player patient } && Meadow.Meadow.IsRemote(patient))
                     {
                         if (self == patient)
                             continue;
@@ -552,7 +530,7 @@ sealed class Plugin : BaseUnityPlugin
             }
             // local/offline
             // fallback to reviving oneself client-side if near alive players
-            else if (self.dead)
+            if (self.dead)
             {
                 foreach (var abstractWorldEntity in self.room?.abstractRoom.entities)
                 {
@@ -1068,7 +1046,8 @@ sealed class Plugin : BaseUnityPlugin
     {
         if (Options.Mode.Value != "C")
             return orig(self, obj);
-    
+
+        // wouldn't it be annoying if when you tried to perform chest compressions on someone to save their life but a nearby spear said no
         if (self.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Slugpup
             && self.grasps.FirstOrDefault()?.grabbedChunk.owner is Player patient
             && patient.dead
