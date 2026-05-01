@@ -15,6 +15,9 @@ sealed class PlayerData
     public float deathTime; // Ranges from -1 to 1 and starts at 0
 
     public int proximityExposure;
+    public int proximityExposureRpc;
+
+    public float debugTime;
 
     public bool Expired
     {
