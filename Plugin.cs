@@ -21,7 +21,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.1";
+    public const string MOD_VERSION = "1.2.2";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -1021,7 +1021,7 @@ sealed class Plugin : BaseUnityPlugin
         }
         else
         {
-            deathsUntilExpire = new(self, self.pages[0], $"Corpses expire after {Options.DeathsUntilExpire.Value} deaths or {Options.CorpseExpiryTime.Value} minutes", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
+            deathsUntilExpire = new(self, self.pages[0], $"Corpses expire after {Options.DeathsUntilExpire.Value} deaths or {Math.Round(Options.CorpseExpiryTime.Value, 1)} minutes", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
             deathsUntilExpire.label.alignment = FLabelAlignment.Left;
             self.pages[0].subObjects.Add(deathsUntilExpire);
         }
