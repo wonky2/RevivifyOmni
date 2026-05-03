@@ -158,7 +158,7 @@ sealed class Options : OptionInterface
             new OpLabel(new(220, y -= 30), Vector2.zero, "Show Revivify settings in pause menu", FLabelAlignment.Right),
             new OpCheckBox(ShowSettingsInPauseMenu, new Vector2(sliderX, y - 6)),
 
-            new OpLabel(new(220, y -= 30), Vector2.zero, "Prevent player slugpups from swapping corpse with item outside CPR mode", FLabelAlignment.Right),
+            new OpLabel(new(220, y -= 30), Vector2.zero, "Slugpups never swap patient with item", FLabelAlignment.Right),
             new OpCheckBox(DisableSlugpupSwapCorpseWithItem, new Vector2(sliderX, y - 6)),
         };
         opExtras.AddItems(UIExtras);

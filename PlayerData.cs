@@ -16,6 +16,7 @@ sealed class PlayerData
 
     public int proximityExposure;
     public int proximityExposureRpc;
+    public bool exposureNeedsIncrementing;
 
     public float debugTime;
 

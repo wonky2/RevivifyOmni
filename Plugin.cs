@@ -4,6 +4,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using RWCustom;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
@@ -52,6 +53,7 @@ sealed class Plugin : BaseUnityPlugin
     {
         if (Data(patient) == null) Data(patient).debugTime = Time.time;
 
+        // still needs some work
         if (Options.DebugMode.Value && Time.time > Data(patient).debugTime)
         {
             if (medic == patient)
@@ -78,10 +80,6 @@ sealed class Plugin : BaseUnityPlugin
             {
                 Log($"{medic} can't revive {patient}: patient.Submersion > 0");
             }
-            if (patient.onBack != null)
-            {
-                Log($"{medic} can't revive {patient}: patient.onBack != null");
-            }
             if (Data(patient).Expired)
             {
                 Log($"{medic} can't revive {patient}: Data(patient).Expired");
@@ -99,7 +97,7 @@ sealed class Plugin : BaseUnityPlugin
                 Log($"{medic} can't revive {patient}: medic.grabbedBy.Count > 0 && medic.grabbedBy.All(x => x.grabber is not Player)");
             }
             // non-proximity only
-            if (medic.Submersion > 0)
+            if (medic.Submersion > 0 && Options.Mode.Value != "P")
             {
                 Log($"{medic} can't revive {patient}: medic.Submersion > 0");
             }
@@ -115,6 +113,10 @@ sealed class Plugin : BaseUnityPlugin
             {
                 Log($"{medic} can't revive {patient}: medic.gourmandExhausted");
             }
+            if (patient.onBack != null && Options.Mode.Value != "P")
+            {
+                Log($"{medic} can't revive {patient}: patient.onBack != null");
+            }
             // cooldown
             Data(patient).debugTime = Time.time + DEBUG_INTERVAL;
         }
@@ -125,7 +127,6 @@ sealed class Plugin : BaseUnityPlugin
             || !patient.dead
             || patient.grabbedBy.Count > 1
             || patient.Submersion > 0
-            || patient.onBack != null
             || Data(patient).Expired
             || (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
             || !medic.Consious
@@ -138,7 +139,8 @@ sealed class Plugin : BaseUnityPlugin
         if (medic.Submersion > 0
             || medic.exhausted
             || medic.lungsExhausted
-            || medic.gourmandExhausted)
+            || medic.gourmandExhausted
+            || patient.onBack != null)
             return false;
 
         bool corpseStill = patient.IsTileSolid(0, 0, -1) && patient.IsTileSolid(1, 0, -1) && patient.bodyChunks[0].vel.magnitude < 6;
@@ -502,9 +504,9 @@ sealed class Plugin : BaseUnityPlugin
             // will attempt to ReviveRPC the patient, but if they don't have Omni, they'll have to deal with it client-side
             if (meadowEnabled && Meadow.Meadow.IsOnlineSession() && !self.dead && !Options.DisableRPC.Value)
             {
-                foreach (var abstractWorldEntity in self.room?.abstractRoom.entities)
+                foreach (var entity in self.room?.abstractRoom.entities)
                 {
-                    if (abstractWorldEntity is AbstractCreature { realizedCreature: Player patient } && Meadow.Meadow.IsRemote(patient))
+                    if (entity is AbstractCreature { realizedCreature: Player patient } && Meadow.Meadow.IsRemote(patient))
                     {
                         if (self == patient)
                             continue;
@@ -524,7 +526,6 @@ sealed class Plugin : BaseUnityPlugin
                         else
                         {
                             Data(patient).proximityExposureRpc++;
-                            //break;
                         }
                     }
                 }
@@ -533,29 +534,34 @@ sealed class Plugin : BaseUnityPlugin
             // fallback to reviving oneself client-side if near alive players
             if (self.dead)
             {
-                foreach (var abstractWorldEntity in self.room?.abstractRoom.entities)
+                Data(self).exposureNeedsIncrementing = true; // make sure only one medic progresses the reviving process
+
+                HashSet<Player> nearbyMedics = new();
+                foreach (var entity in self.room?.abstractRoom.entities)
                 {
-                    if (abstractWorldEntity is AbstractCreature { realizedCreature: Player medic })
+                    if (entity is AbstractCreature { realizedCreature: Player medic } && medic != self)
                     {
-                        if (medic == self)
-                            continue;
+                        nearbyMedics.Add(medic);
+                    }
+                }
 
-                        if (!CanRevive(medic, self))
-                        {
-                            Data(self).proximityExposure = 0;
-                            continue;
-                        }
+                foreach (var medic in nearbyMedics)
+                {
+                    if (nearbyMedics.All(medic => !CanRevive(medic, self)))
+                    {
+                        Data(self).proximityExposure = 0;
+                        break;
+                    }
 
-                        if (Data(self).proximityExposure >= ONE_SECOND * Options.ProximityTime.Value)
-                        {
-                            Revive(self);
-                            Data(self).proximityExposure = 0;
-                        }
-                        else
-                        {
-                            Data(self).proximityExposure++;
-                            break;
-                        }
+                    if (Data(self).proximityExposure >= ONE_SECOND * Options.ProximityTime.Value)
+                    {
+                        Revive(self);
+                        Data(self).proximityExposure = 0;
+                    }
+                    else
+                    {
+                        if (Data(self).exposureNeedsIncrementing) Data(self).proximityExposure++;
+                        Data(self).exposureNeedsIncrementing = false;
                     }
                 }
             }
