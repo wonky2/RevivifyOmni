@@ -22,7 +22,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.2";
+    public const string MOD_VERSION = "1.2.3";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -47,7 +47,6 @@ sealed class Plugin : BaseUnityPlugin
         && ((meadowEnabled && Meadow.Meadow.IsOnlineArenaSession())
         || self.room.game.IsArenaSession));
 
-    //static float debugTime = 0.0f;
     const float DEBUG_INTERVAL = 0.5f;
     private static bool CanRevive(Player medic, Player patient)
     {
@@ -1051,10 +1050,10 @@ sealed class Plugin : BaseUnityPlugin
 
     private bool NoPickupWhileCprAsSlup(On.Player.orig_CanIPickThisUp orig, Player self, PhysicalObject obj)
     {
-        if (Options.Mode.Value != "C")
+        if (Options.Mode.Value != "C" && !Options.DisableSlugpupSwapCorpseWithItem.Value)
             return orig(self, obj);
 
-        // wouldn't it be annoying if when you tried to perform chest compressions on someone to save their life but a nearby spear said no
+        // wouldn't it be annoying if you tried to perform chest compressions on someone to save their life but a nearby spear said no
         if (self.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Slugpup
             && self.grasps.FirstOrDefault()?.grabbedChunk.owner is Player patient
             && patient.dead
