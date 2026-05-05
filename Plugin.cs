@@ -22,7 +22,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.3";
+    public const string MOD_VERSION = "1.2.4";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -75,9 +75,9 @@ sealed class Plugin : BaseUnityPlugin
             {
                 Log($"{medic} can't revive {patient}: patient.grabbedBy.Count > 1");
             }
-            if (patient.Submersion > 0)
+            if (patient.Submersion > 0.8f)
             {
-                Log($"{medic} can't revive {patient}: patient.Submersion > 0");
+                Log($"{medic} can't revive {patient}: patient.Submersion > 0.8f");
             }
             if (Data(patient).Expired)
             {
@@ -96,9 +96,9 @@ sealed class Plugin : BaseUnityPlugin
                 Log($"{medic} can't revive {patient}: medic.grabbedBy.Count > 0 && medic.grabbedBy.All(x => x.grabber is not Player)");
             }
             // non-proximity only
-            if (medic.Submersion > 0 && Options.Mode.Value != "P")
+            if (medic.Submersion > 0.8f && Options.Mode.Value != "P")
             {
-                Log($"{medic} can't revive {patient}: medic.Submersion > 0");
+                Log($"{medic} can't revive {patient}: medic.Submersion > 0.8f");
             }
             if (medic.exhausted && Options.Mode.Value != "P")
             {
@@ -116,7 +116,7 @@ sealed class Plugin : BaseUnityPlugin
             {
                 Log($"{medic} can't revive {patient}: patient.onBack != null");
             }
-            // cooldown
+            // logging cooldown
             Data(patient).debugTime = Time.time + DEBUG_INTERVAL;
         }
 
@@ -125,7 +125,7 @@ sealed class Plugin : BaseUnityPlugin
             || patient.playerState.permaDead
             || !patient.dead
             || patient.grabbedBy.Count > 1
-            || patient.Submersion > 0
+            || patient.Submersion > 0.8f
             || Data(patient).Expired
             || (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
             || !medic.Consious
@@ -135,7 +135,7 @@ sealed class Plugin : BaseUnityPlugin
         if (Options.Mode.Value == "P")
             return !medic.dead && Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos) <= Options.ProximityDistance.Value;
 
-        if (medic.Submersion > 0
+        if (medic.Submersion > 0.8f
             || medic.exhausted
             || medic.lungsExhausted
             || medic.gourmandExhausted
