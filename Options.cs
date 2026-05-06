@@ -10,14 +10,14 @@ sealed class Options : OptionInterface
     // common
     public static Configurable<string> Mode;
     public static Configurable<int> DeathsUntilExhaustion;
-    public static Configurable<int> DeathsUntilComa;
-    public static Configurable<bool> DisableExhaustion;
-    public static Configurable<int> DeathsUntilExpire;
-    public static Configurable<float> CorpseExpiryTime;
+    public static Configurable<int> DeathsUntilSlugpupComa;
+    public static Configurable<bool> DisableExhaustionAndComa;
+    public static Configurable<int> DeathsUntilSlugpupsExpire;
+    public static Configurable<float> TimeUntilCorpsesExpire;
     public static Configurable<bool> DisableExpiry;
     public static Configurable<bool> DisableInArena;
     // cpr
-    public static Configurable<float> ReviveSpeed;
+    public static Configurable<float> ChestCompressionSpeed;
     // proximity
     public static Configurable<float> ProximityDistance;
     public static Configurable<int> ProximityTime;
@@ -33,14 +33,14 @@ sealed class Options : OptionInterface
         // common
         Mode = config.Bind("cfgMode", "C");
         DeathsUntilExhaustion = config.Bind("cfgDeathsUntilExhaustion", 1, new ConfigAcceptableRange<int>(1, 10));
-        DeathsUntilComa = config.Bind("cfgDeathsUntilComa", 2, new ConfigAcceptableRange<int>(1, 10));
-        DisableExhaustion = config.Bind("cfgDisableExhaustion", false);
-        DeathsUntilExpire = config.Bind("cfgDeathsUntilExpire", 3, new ConfigAcceptableRange<int>(1, 10));
-        CorpseExpiryTime = config.Bind("cfgCorpseExpiryTime", 1.5f, new ConfigAcceptableRange<float>(0.05f, 10f));
+        DeathsUntilSlugpupComa = config.Bind("cfgDeathsUntilComa", 2, new ConfigAcceptableRange<int>(1, 10));
+        DisableExhaustionAndComa = config.Bind("cfgDisableExhaustion", false);
+        DeathsUntilSlugpupsExpire = config.Bind("cfgDeathsUntilExpire", 3, new ConfigAcceptableRange<int>(1, 10));
+        TimeUntilCorpsesExpire = config.Bind("cfgCorpseExpiryTime", 1.5f, new ConfigAcceptableRange<float>(0.05f, 10f));
         DisableExpiry = config.Bind("cfgDisableExpiry", false);
         DisableInArena = config.Bind("cfgDisableInArena", true);
         // cpr
-        ReviveSpeed = config.Bind("cfgReviveSpeed", 1f, new ConfigAcceptableRange<float>(0.1f, 5f));
+        ChestCompressionSpeed = config.Bind("cfgReviveSpeed", 1f, new ConfigAcceptableRange<float>(0.1f, 5f));
         // proximity
         ProximityDistance = config.Bind("cfgProximityDistance", 60f, new ConfigAcceptableRange<float>(20f, 120f));
         ProximityTime = config.Bind("cfgProximityTime", 5, new ConfigAcceptableRange<int>(1, 10));
@@ -108,17 +108,17 @@ sealed class Options : OptionInterface
             new OpSlider(DeathsUntilExhaustion, new Vector2(sliderX, y - 6), 300),
 
             new OpLabel(new(220, y -= 30), Vector2.zero, "Deaths until slugpups become comatose", FLabelAlignment.Right),
-            new OpSlider(DeathsUntilComa, new Vector2(sliderX, y - 6), 300),
+            new OpSlider(DeathsUntilSlugpupComa, new Vector2(sliderX, y - 6), 300),
 
             new OpLabel(new(220, y -= 30), Vector2.zero, "Disable exhaustion and comatose slugpups", FLabelAlignment.Right),
-            new OpCheckBox(DisableExhaustion, new Vector2(sliderX, y - 6)),
+            new OpCheckBox(DisableExhaustionAndComa, new Vector2(sliderX, y - 6)),
 
 
-            new OpLabel(new(220, y -= 50), Vector2.zero, "Deaths until slugpups permanently expire", FLabelAlignment.Right),
-            new OpSlider(DeathsUntilExpire, new Vector2(sliderX, y - 6), 300),
+            new OpLabel(new(220, y -= 50), Vector2.zero, "Deaths until slugpup corpses expire", FLabelAlignment.Right),
+            new OpSlider(DeathsUntilSlugpupsExpire, new Vector2(sliderX, y - 6), 300),
 
-            new OpLabel(new(220, y -= 30), Vector2.zero, "Time until bodies expire, in minutes", FLabelAlignment.Right),
-            new OpFloatSlider(CorpseExpiryTime, new Vector2(sliderX, y - 6), 300),
+            new OpLabel(new(220, y -= 30), Vector2.zero, "Minutes until corpses expire", FLabelAlignment.Right),
+            new OpFloatSlider(TimeUntilCorpsesExpire, new Vector2(sliderX, y - 6), 300),
 
             new OpLabel(new(220, y -= 30), Vector2.zero, "Disable expiration", FLabelAlignment.Right),
             new OpCheckBox(DisableExpiry, new Vector2(sliderX, y - 6)),
@@ -131,7 +131,7 @@ sealed class Options : OptionInterface
             new OpLabel(new(280, y -= 50), Vector2.zero, "CPR only", FLabelAlignment.Center, true),
 
             new OpLabel(new(220, y -= 30), Vector2.zero, "Revive speed multiplier", FLabelAlignment.Right),
-            new OpFloatSlider(ReviveSpeed, new Vector2(sliderX, y - 6), 300),
+            new OpFloatSlider(ChestCompressionSpeed, new Vector2(sliderX, y - 6), 300),
 
             // proximity
             new OpLabel(new(280, y -= 50), Vector2.zero, "Proximity only", FLabelAlignment.Center, true),
@@ -139,7 +139,7 @@ sealed class Options : OptionInterface
             new OpLabel(new(220, y -= 30), Vector2.zero, "Distance from nearest alive slugcat", FLabelAlignment.Right),
             new OpFloatSlider(ProximityDistance, new Vector2(sliderX, y - 6), 300, decimalNum : 0),
 
-            new OpLabel(new(220, y -= 30), Vector2.zero, "Time until revived", FLabelAlignment.Right),
+            new OpLabel(new(220, y -= 30), Vector2.zero, "Seconds until revived", FLabelAlignment.Right),
             new OpSlider(ProximityTime, new Vector2(sliderX, y - 6), 300),
         };
         opCommon.AddItems(UIOptions);

@@ -30,7 +30,7 @@ sealed class PlayerData
             }
             else
             {
-                return expireTime > Options.CorpseExpiryTime.Value * 60f * 40f;
+                return expireTime > Options.TimeUntilCorpsesExpire.Value * 60f * 40f;
             }
         }
     }

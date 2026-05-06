@@ -55,8 +55,7 @@ namespace Meadow
             if (ModManager.Watcher)
                 player.injectedPoison = 0f;
 
-            if (!RevivifyOmni.Options.DisableExhaustion.Value)
-                player.playerState.permanentDamageTracking = Mathf.Clamp01((float)RevivifyOmni.Plugin.Data(player).deaths / RevivifyOmni.Options.DeathsUntilExhaustion.Value) * 0.6;
+            player.playerState.permanentDamageTracking = RevivifyOmni.Options.DisableExhaustionAndComa.Value ? 0.0 : Mathf.Clamp01((float)RevivifyOmni.Plugin.Data(player).deaths / RevivifyOmni.Options.DeathsUntilExhaustion.Value) * 0.6;
 
             player.playerState.alive = true;
             player.playerState.permaDead = false;

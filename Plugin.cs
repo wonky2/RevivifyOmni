@@ -6,6 +6,7 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
 using UnityEngine;
@@ -22,7 +23,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.4";
+    public const string MOD_VERSION = "1.2.5";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -83,7 +84,7 @@ sealed class Plugin : BaseUnityPlugin
             {
                 Log($"{medic} can't revive {patient}: Data(patient).Expired");
             }
-            if (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
+            if (Data(patient).deaths >= Options.DeathsUntilSlugpupsExpire.Value && !Options.DisableExpiry.Value)
             {
                 Log($"{medic} can't revive {patient}: Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value");
             }
@@ -125,16 +126,18 @@ sealed class Plugin : BaseUnityPlugin
             || patient.playerState.permaDead
             || !patient.dead
             || patient.grabbedBy.Count > 1
-            || patient.Submersion > 0.8f
+            || patient.Submersion > 0.8f // 0f would prevent reviving even in safe shallow water, while a total lack of this check would just make the patient drown immediately after reviving fully underwater
             || Data(patient).Expired
-            || (Data(patient).deaths >= Options.DeathsUntilExpire.Value && !Options.DisableExpiry.Value)
+            || (Data(patient).deaths >= Options.DeathsUntilSlugpupsExpire.Value && !Options.DisableExpiry.Value)
             || !medic.Consious
             || (medic.grabbedBy.Count > 0 && medic.grabbedBy.All(x => x.grabber is not Player)))
             return false;
 
+        // proximity only
         if (Options.Mode.Value == "P")
             return !medic.dead && Vector2.Distance(medic.firstChunk.pos, patient.firstChunk.pos) <= Options.ProximityDistance.Value;
 
+        // cpr only
         if (medic.Submersion > 0.8f
             || medic.exhausted
             || medic.lungsExhausted
@@ -142,10 +145,9 @@ sealed class Plugin : BaseUnityPlugin
             || patient.onBack != null)
             return false;
 
-        bool corpseStill = patient.IsTileSolid(0, 0, -1) && patient.IsTileSolid(1, 0, -1) && patient.bodyChunks[0].vel.magnitude < 6;
-        bool selfStill = medic.input.Take(10).All(i => i.x == 0 && i.y == 0 && !i.thrw && !i.jmp) && medic.bodyChunks[1].ContactPoint.y < 0;
-
-        return corpseStill && selfStill && medic.bodyMode == Player.BodyModeIndex.Stand;
+        return medic.bodyMode == Player.BodyModeIndex.Stand &&
+            patient.IsTileSolid(0, 0, -1) && patient.IsTileSolid(1, 0, -1) && patient.bodyChunks[0].vel.magnitude < 6 && // patient is still and on solid ground
+            medic.input.Take(10).All(i => i.x == 0 && i.y == 0 && !i.thrw && !i.jmp) && medic.bodyChunks[1].ContactPoint.y < 0; // medic is still and on solid ground
     }
 
     private static void Revive(Player player)
@@ -161,8 +163,7 @@ sealed class Plugin : BaseUnityPlugin
         if (ModManager.Watcher)
             player.injectedPoison = 0f;
 
-        if (!Options.DisableExhaustion.Value)
-            player.playerState.permanentDamageTracking = Mathf.Clamp01((float)Data(player).deaths / Options.DeathsUntilExhaustion.Value) * 0.6;
+        player.playerState.permanentDamageTracking = Options.DisableExhaustionAndComa.Value ? 0.0 : Mathf.Clamp01((float)Data(player).deaths / Options.DeathsUntilExhaustion.Value) * 0.6;
 
         player.playerState.alive = true;
         player.playerState.permaDead = false;
@@ -231,10 +232,7 @@ sealed class Plugin : BaseUnityPlugin
     }
 
     private readonly Func<Func<Player, bool>, Player, bool> getMalnourished = (orig, self) =>
-    {
-        return orig(self) ||
-            (Data(self).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustion.Value);
-    };
+        orig(self) || (Data(self).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustionAndComa.Value);
 
     private bool Player_CanIPutDeadSlugOnBack(On.Player.orig_CanIPutDeadSlugOnBack orig, Player self, Player pickUpCandidate)
     {
@@ -295,7 +293,7 @@ sealed class Plugin : BaseUnityPlugin
                 if (self.grasps.FirstOrDefault()?.grabbed is not Player patient)
                     return;
 
-                if (patient.isSlugpup && patient.AI != null && Data(patient).deaths >= Options.DeathsUntilComa.Value && !Options.DisableExhaustion.Value)
+                if (patient.isSlugpup && patient.AI != null && Data(patient).deaths >= Options.DeathsUntilSlugpupComa.Value && !Options.DisableExhaustionAndComa.Value)
                     patient.stun = 100;
             
                 if (!self.dead)
@@ -363,7 +361,7 @@ sealed class Plugin : BaseUnityPlugin
                     Data(patient).deathTime = 0;
                 }
             
-                if (Data(patient).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustion.Value)
+                if (Data(patient).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustionAndComa.Value)
                 {
                     if (patient.isSlugpup && patient.AI != null)
                     {
@@ -399,7 +397,7 @@ sealed class Plugin : BaseUnityPlugin
             // dealing with being revived client-side as the patient
             if (self.dead && self.grabbedBy.Any(x => x.grabber is Player))
             {
-                if (self.isSlugpup && self.AI != null && Data(self).deaths >= Options.DeathsUntilComa.Value && !Options.DisableExhaustion.Value)
+                if (self.isSlugpup && self.AI != null && Data(self).deaths >= Options.DeathsUntilSlugpupComa.Value && !Options.DisableExhaustionAndComa.Value)
                     self.stun = 100;
 
                 if (self.dead)
@@ -464,7 +462,7 @@ sealed class Plugin : BaseUnityPlugin
                     Data(self).deathTime = 0;
                 }
 
-                if (Data(self).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustion.Value)
+                if (Data(self).deaths >= Options.DeathsUntilExhaustion.Value && !Options.DisableExhaustionAndComa.Value)
                 {
                     if (self.isSlugpup && self.AI != null)
                     {
@@ -573,9 +571,9 @@ sealed class Plugin : BaseUnityPlugin
 
         orig(self, source, directionAndMomentum, hitChunk, hitAppendage, type, damage, stunBonus);
 
-        if (self is Player p && wasDead && p.dead && damage > 0)
+        if (self is Player player && wasDead && player.dead && damage > 0)
         {
-            PlayerData data = Data(p);
+            PlayerData data = Data(player);
             if (data.deathTime < 0)
             {
                 data.deathTime = 0;
@@ -808,7 +806,7 @@ sealed class Plugin : BaseUnityPlugin
             _ => 1f
         };
         if (data.compressionDepth > 4) self.Blink(6);
-        patientData.deathTime -= healing * Options.ReviveSpeed.Value;
+        patientData.deathTime -= healing * Options.ChestCompressionSpeed.Value;
         patientData.lastCompression = self.room.game.clock;
 
         if (patientData.waterInLungs > 0)
@@ -834,7 +832,7 @@ sealed class Plugin : BaseUnityPlugin
 
         PlayerData data = Data(self.player);
 
-        float visualDecay = Options.DisableExhaustion.Value ? 0f : Mathf.Max(Mathf.Clamp01(data.deathTime), Mathf.Clamp01((float)data.deaths / Options.DeathsUntilExhaustion.Value) * 0.6f);
+        float visualDecay = Options.DisableExhaustionAndComa.Value ? 0f : Mathf.Max(Mathf.Clamp01(data.deathTime), Mathf.Clamp01((float)data.deaths / Options.DeathsUntilExhaustion.Value) * 0.6f);
         if (self.malnourished < visualDecay)
         {
             self.malnourished = visualDecay;
@@ -1002,7 +1000,7 @@ sealed class Plugin : BaseUnityPlugin
         Menu.MenuLabel proximityDistance;
         Menu.MenuLabel proximityTime;
 
-        if (Options.DisableExhaustion.Value)
+        if (Options.DisableExhaustionAndComa.Value)
         {
             disableExhaustion = new(self, self.pages[0], $"Exhaustion and slugpup coma are disabled", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
             disableExhaustion.label.alignment = FLabelAlignment.Left;
@@ -1011,7 +1009,7 @@ sealed class Plugin : BaseUnityPlugin
         else
         {
             deathsUntilExhaustion = new(self, self.pages[0], $"Exhaustion after {Options.DeathsUntilExhaustion.Value} deaths", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
-            deathsUntilComa = new(self, self.pages[0], $"Slugpup coma after {Options.DeathsUntilComa.Value} deaths", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
+            deathsUntilComa = new(self, self.pages[0], $"Slugpup coma after {Options.DeathsUntilSlugpupComa.Value} deaths", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
             deathsUntilExhaustion.label.alignment = FLabelAlignment.Left;
             deathsUntilComa.label.alignment = FLabelAlignment.Left;
             self.pages[0].subObjects.Add(deathsUntilExhaustion);
@@ -1026,14 +1024,14 @@ sealed class Plugin : BaseUnityPlugin
         }
         else
         {
-            deathsUntilExpire = new(self, self.pages[0], $"Corpses expire after {Options.DeathsUntilExpire.Value} deaths or {Math.Round(Options.CorpseExpiryTime.Value, 1)} minutes", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
+            deathsUntilExpire = new(self, self.pages[0], $"Corpses expire after {Options.DeathsUntilSlugpupsExpire.Value} deaths or {Math.Round(Options.TimeUntilCorpsesExpire.Value, 1)} minutes", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
             deathsUntilExpire.label.alignment = FLabelAlignment.Left;
             self.pages[0].subObjects.Add(deathsUntilExpire);
         }
 
         if (Options.Mode.Value == "C")
         {
-            reviveSpeed = new(self, self.pages[0], $"Revive speed: {Math.Round(Options.ReviveSpeed.Value, 1)}x", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
+            reviveSpeed = new(self, self.pages[0], $"Revive speed: {Math.Round(Options.ChestCompressionSpeed.Value, 1)}x", new Vector2(pos.x, pos.y -= LINE_HEIGHT), size, false);
             reviveSpeed.label.alignment = FLabelAlignment.Left;
             self.pages[0].subObjects.Add(reviveSpeed);
         }
