@@ -23,7 +23,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public const string MOD_ID = "Wonky.RevivifyOmni";
     public const string MOD_NAME = "RevivifyOmni";
-    public const string MOD_VERSION = "1.2.5";
+    public const string MOD_VERSION = "1.2.6";
 
     public static bool meadowEnabled; // becomes true if Rain Meadow is enabled, always include in if statements with Meadow-specific checks
 
@@ -503,6 +503,7 @@ sealed class Plugin : BaseUnityPlugin
             {
                 foreach (var entity in self.room?.abstractRoom.entities)
                 {
+                    if (entity == null) continue;
                     if (entity is AbstractCreature { realizedCreature: Player patient } && Meadow.Meadow.IsRemote(patient))
                     {
                         if (self == patient)
@@ -536,6 +537,7 @@ sealed class Plugin : BaseUnityPlugin
                 HashSet<Player> nearbyMedics = new();
                 foreach (var entity in self.room?.abstractRoom.entities)
                 {
+                    if (entity == null) continue;
                     if (entity is AbstractCreature { realizedCreature: Player medic } && medic != self)
                     {
                         nearbyMedics.Add(medic);
