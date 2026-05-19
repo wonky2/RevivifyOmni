@@ -22,3 +22,8 @@ Basically [Revivify by Dual-Iron](https://github.com/Dual-Iron/revivify) but wit
 - To **[UO](https://github.com/6fears7/)** for helping me figure out the proper way to sync reviving in Rain Meadow!
 
 - To **[Auxiar Molkhun](https://github.com/Auxiar)** just for also making a nice fresh Revivify while I was still working on mine! You should give it a try and see which one works best for you: [Revivify - Meadow Support](https://github.com/Auxiar/RevivifyMeadowSupport)
+
+### N.A.Q. (Never Asked Questions)
+- **Why "Omni"?** - The idea behind this mod was the create the last Revivify anyone would ever need, fulfilling any possible need related to slugcats reviving each other. "Revivify Omni" was just a working title at first, but I never really came up with anything better, and this one pretty nicely reflects the idea, so it stuck.
+
+- **Why not contribute to another Revivify instead of making a new one?** - Very good question. I should consider doing that.
