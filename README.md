@@ -1,4 +1,4 @@
-Basically [Revivify by Dual-Iron](https://github.com/Dual-Iron/revivify) but with extra features and improvements.
+Basically [Revivify by Dual-Iron](https://github.com/Dual-Iron/revivify) but with extra features, improvements, and fixes.
 
 ### Extra features:
 - **Proximity reviving** - An alternative reviving mode that allows you to be revived by just being near another player. It's similar to Revivify Meadow, but the functionality was coded from scratch rather than taken from that mod.
@@ -8,13 +8,16 @@ Basically [Revivify by Dual-Iron](https://github.com/Dual-Iron/revivify) but wit
 - **Settings displayed in pause menu** - I initially planned for this mod to sync its settings in Rain Meadow lobbies when the host has it enabled, in which case being able to see the settings would be crucial. Unfortunately, syncing settings caused people without Revivify Omni to be unable to join lobbies where the host has it. I decided to still keep this feature just because why not. It can be disabled in the remix settings.
 
 ### Improvements:
-- **Auto-disable in arena** - Older Revivify's, especially Revivify Meadow suffered from unintentional revivals in arena mode, which disrupted PvP matches. Revivify Omni has an option to disable its functionality only in arena game modes.
+- **Option to disable in arena** - Revivify Meadow, the first Revivify to have proximity reviving, often causes unintentional revivals in arena mode, which can disrupt PvP matches. Revivify Omni has an option to disable its functionality in arena game modes to prevent such problems.
 
+- **Option to disable exhaustion/coma** - In older Revivify's, the only way to avoid negative effects from too much reviving was to max out the sliders and hope you don't reach the limit. This mod adds dedicated checkboxes to completely disable those features.
+
+- **Option to disable reviving completely** - In case someone doesn't want reviving to be possible at all but changing the modlist and restarting the game is too bothersome or takes too long, there's an option to completely disable all of Revivify Omni's funtionality.
+
+### Fixes:
 - **Player slugpups can do CPR** - in the original Revivify, being a slugpup means you can't perform chest compressions due to the way it was coded. I added a special case for when the player is a slugpup that allows them to properly do CPR.
 
-- **Disable exhaustion/coma** - In older Revivify's the only way to avoid negative effects from too much reviving was to max out the sliders and hope you don't reach the limit. This mod adds dedicated checkboxes to completely disable those features.
-
-- **Disable reviving completely** - In case someone doesn't want reviving to be possible at all but changing the modlist and restarting the game is too bothersome or takes too long, there's an option to completely disable all of Revivify Omni's funtionality.
+- **Heal poison** - Other Revivify's don't take poison from certain Watcher creatures into consideraion, causing revived players to still be affected and potentially killed by it. Revivify Omni removes poison completely upon revival.
 
 ### Special thanks and credits
 - To **[Dual-Iron](https://github.com/Dual-Iron/)** whose original [Revivify](https://github.com/Dual-Iron/revivify) constitutes 99% of the work put into the base functionality this mod! My contributions in Revivify Omni are just a little cherry on top of an already delicious cake.
