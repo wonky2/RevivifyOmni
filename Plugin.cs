@@ -209,6 +209,9 @@ sealed class Plugin : BaseUnityPlugin
 
         // prevents slugpups from picking other items up while holding a dead slugcat, cause otherwise they then drop the slugcat
         On.Player.CanIPickThisUp += NoPickupWhileCprAsSlup;
+
+        // fixes game over screen not disappearing after reviving a player (WIP: doesn't fix all cases yet)
+        On.HUD.TextPrompt.Update += GameOverScreenFix;
     }
 
     private void ErrorCatch(On.RainWorld.orig_Update orig, RainWorld self)
@@ -1061,5 +1064,23 @@ sealed class Plugin : BaseUnityPlugin
             return false;
     
         return orig(self, obj);
+    }
+
+    private void GameOverScreenFix(On.HUD.TextPrompt.orig_Update orig, HUD.TextPrompt self)
+    {
+        orig(self);
+
+        if (ModManager.JollyCoop)
+        {
+            if (self.hud.owner is Player player && player.abstractCreature.world.game is RainWorldGame game
+                && ((game.rainWorld.options.jollyDifficulty == global::Options.JollyDifficulty.EASY && game.AlivePlayers.Count > 0)
+                || (game.rainWorld.options.jollyDifficulty != global::Options.JollyDifficulty.EASY && game.AlivePlayers.Count > 0 && game.NonPermaDeadPlayers.Count == 0)))
+                self.gameOverMode = false;
+        }
+        else
+        {
+            if (self.hud.owner is Player player && !player.dead)
+                self.gameOverMode = false;
+        }
     }
 }
