@@ -506,7 +506,6 @@ sealed class Plugin : BaseUnityPlugin
             {
                 foreach (var entity in self.room?.abstractRoom.entities)
                 {
-                    if (entity == null) continue;
                     if (entity is AbstractCreature { realizedCreature: Player patient } && Meadow.Meadow.IsRemote(patient))
                     {
                         if (self == patient)
@@ -540,7 +539,6 @@ sealed class Plugin : BaseUnityPlugin
                 HashSet<Player> nearbyMedics = new();
                 foreach (var entity in self.room?.abstractRoom.entities)
                 {
-                    if (entity == null) continue;
                     if (entity is AbstractCreature { realizedCreature: Player medic } && medic != self)
                     {
                         nearbyMedics.Add(medic);
